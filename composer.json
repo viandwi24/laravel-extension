@@ -1,0 +1,30 @@
+{
+    "name": "viandwi24/laravel-extension",
+    "description": "Plugin, Exntension and Module System For Laravel",
+    "keywords": ["laravel", "module", "plugin", "extension"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "viandwi24",
+            "email": "fiandwi0424@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "illuminate/support": "7^",
+        "php": "7^"
+    },
+    "autoload": {
+        "psr-4": {
+            "Viandwi24\\LaravelExtension\\": "src/"
+        }
+    },
+    "extra": {
+	    "laravel": {
+            "dont-discover": [
+                "*"
+            ]
+        }
+    }
+}
