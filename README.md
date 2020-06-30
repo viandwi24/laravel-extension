@@ -1,6 +1,21 @@
 # Laravel Extension
 Plugin, Extension and Module System For Laravel. Inspirate from Wordpress Plugins.
 
+
+Table of contents
+=================
+
+<!--ts-->
+   * [Installing](#installing)
+   * [Extension Folder Structure](#extension-folder-structure)
+   * [Create New Extension](#create-new-extension)
+      * [with Artisan Command](#with-artisan-command)
+      * [Manual](#manual)
+   * [Hook](#hook)
+      * [Action](#action)
+      * [Filter](#filter)
+<!--te-->
+
 ## Installing
 Install from composer :
 ```
@@ -59,6 +74,10 @@ By Default, Extension path in `app/Extension`, you can create Extension in this 
 
 
 ###  Artisan Console Command Support
+Make new extension easy :
+```
+php artisan extension:new ExampleExtension
+```
 Update list installed extension :
 ```
 php artisan extension:update-list
@@ -93,7 +112,26 @@ php artisan hook:list --filter
 ```
 
 
-### Konsep Extension
+## Create New Extension 
+### with Artisan Command
+you can create new extension with this command :
+```
+php artisan extension:new ExampleTes
+```
+after success, you can refresh extension list with :
+```
+php artisan extension:update-list
+```
+and you can check if updating list success :
+```
+php artisan extension:list
+```
+for enable your extension, use :
+```
+php artisan extension:enable ExampleTes
+```
+### Manual
+| note : this use indonesian language, you can translate this.
 Lokasi extension harus ada pada folder utama extension, secara default 
 ada pada `app\Extension`. berikut panduan singkat cara pembuatan extension :
 * membuat folder utama extension, misal `app\Extension\MyPlugin`
@@ -161,4 +199,67 @@ php artisan extension:list
 * jika terdaftar tapi statusnya belum `active`, silahkan jalankan perintah :
 ```
 php artisan extension:enable MyPlugin
+```
+
+
+## Hook
+### Action
+with Hook Action, you can make multi-action system and management action.  
+Make Action :
+```
+Hook::addAction(string $extension, string $name, \Closure $callback, int $priority = 10)
+```
+Run Action :
+```
+Hook::runAction(string $name)
+```
+  
+For Example, you can make action hook name "save_post", and this action can make many action callback
+```
+use Viandwi24\LaravelExtension\Facades\Hook;
+use App\Models\Post;
+
+Hook::addAction('extension_name', 'save_post', function ($title) {
+    $create = Post::create([ 'title' => $title ]);
+}, 15);
+
+Hook::addAction('another_extension', 'save_post', function ($title) {
+    Log::create("Creating post with title {$title}");
+}, 10);
+```
+  
+And You Can Run :
+```
+use Viandwi24\LaravelExtension\Facades\Hook;
+
+$title = "Example Post";
+Hook::runAction('save_post', $title);
+```
+### Filter
+Filter make data can modification by multiple closure, this a helpfull for make Extension.
+Make Filter :
+```
+Hook::addFilter(string $extension, string $name, \Closure $callback, int $priority = 10)
+```
+Apply Action :
+```
+$result = Hook::applyFilter(string $name, $value, ...$params)
+```
+  
+For example, i make 2 function for modification a data `$title` :
+```
+use Viandwi24\LaravelExtension\Facades\Hook;
+
+Hook::addFilter('extension_name', 'save_post_params', function ($title) {
+    return "a {$title}.";
+}, 15);
+
+Hook::addFilter('another_extension', 'save_post_params', function ($title) {
+    return strtolower($title);
+}, 10);
+
+
+$title = "Example Post";
+$result = Hook::applyFilter('save_post_params', $title);
+// result output : a example post.
 ```
