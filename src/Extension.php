@@ -58,14 +58,29 @@ class Extension
         $active = $this->getListActiveExtension($installed);
 
         $loaded = [];
-        foreach ($active as $item)
+        foreach ($installed as $item)
         {
             // make tmp for loaded
-            $tmp = (object) [ 'name' => $item, 'errors' => [] ];
+            $tmp = (object) [
+                'name' => $item,
+                'errors' => [],
+                'loaded' => false,
+                'registered' => false,
+                'booted' => false,
+                'active' => false
+            ];
+
+            // check extension has active list ?
+            $check_active = array_search($item, $active);
+            if ($check_active !== false)
+            {
+                $tmp->active = true;
+            }
 
             // get config file
             $config = $this->getConfigExtension($item);
             $tmp->config = $config;
+            $tmp->loaded = true;
             $loaded[] = $tmp;
         }
         $this->loaded = $loaded;
@@ -88,52 +103,60 @@ class Extension
             // make tmp for loaded
             $tmp = (object) $item;
 
-            // set registered state
-            $tmp->registered = true;
+            // register if extension is active
+            if ($tmp->active)
+            {
+                // set registered state
+                $tmp->registered = true;
 
-            // construct service provider
-            if (!$this->debug) {
-                try {
+                // construct service provider
+                if (!$this->debug) {
+                    try {
+                        // make wrapper for provider
+                        $provider = new WrapperServiceProvider(
+                            $this->path,
+                            $item->name,
+                            $tmp->config->provider
+                        );
+                        $tmp->provider = $provider;
+                    } catch (\Throwable $th) {
+                        $tmp->registered = false;
+                        $tmp->errors[] = [
+                            'title' => 'Error On Construct Service Provider',
+                            'throwable' => $th
+                        ];
+                    }
+                } else {
                     // make wrapper for provider
                     $provider = new WrapperServiceProvider(
                         $this->path,
-                        $item,
+                        $tmp->name,
                         $tmp->config->provider
                     );
                     $tmp->provider = $provider;
-                } catch (\Throwable $th) {
-                    $tmp->registered = false;
-                    $tmp->errors[] = [
-                        'title' => 'Error On Construct Service Provider',
-                        'throwable' => $th
-                    ];
                 }
-            } else {
-                // make wrapper for provider
-                $provider = new WrapperServiceProvider(
-                    $this->path,
-                    $tmp->name,
-                    $tmp->config->provider
-                );
-                $tmp->provider = $provider;
-            }
 
-            // register 
-            if (!$this->debug) {
-                try {
+                // register 
+                if (!$this->debug) {
+                    try {
+                        // run register provider
+                        $provider->register();
+                    } catch (\Throwable $th) {
+                        $tmp->registered = false;
+                        $tmp->errors[] = [
+                            'title' => 'Error On Register Service Provider',
+                            'throwable' => $th
+                        ];
+                    }
+                } else {
                     // run register provider
                     $provider->register();
-                } catch (\Throwable $th) {
-                    $tmp->registered = false;
-                    $tmp->errors[] = [
-                        'title' => 'Error On Register Service Provider',
-                        'throwable' => $th
-                    ];
                 }
             } else {
-                // run register provider
-                $provider->register();
+                // set registered state
+                $tmp->registered = false;
             }
+            
             $registered[] = $tmp;
         }
         
@@ -345,5 +368,97 @@ class Extension
 
         // return
         return $config;
+    }
+
+
+    /**
+     * Update list installed extension
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function updateList() : Collection
+    {
+        // vars
+        $file = $this->path . '/extension.json';
+        
+        // get current config
+        $config = $this->readExtensionConfigJson($file);
+
+        // scan dir in extension folder
+        $files = scandir($this->path); array_splice($files, 0, 2);
+        $result = [];
+        foreach($files as $item)
+        { if (File::isDirectory("{$this->path}/{$item}")) $result[] = $item; }
+
+        // write new extension detected
+        $config["list"] = $result;
+        $this->writeExtensionConfigJson($file, $config);
+
+        // return
+        return new Collection($config);
+    }
+
+    private function writeExtensionConfigJson(string $file, array $config)
+    {
+        $config = (object) json_decode(json_encode($config));
+        $config_json = json_encode($config, JSON_PRETTY_PRINT);
+        $write = file_put_contents($file, $config_json);
+        return $write;
+    }
+
+    /**
+     * Enable a extension
+     *
+     * @param string $name
+     * @return bool true if success
+     */
+    public function enable(string $name)
+    {
+        $file = $this->path . '/extension.json';
+        $config = $this->config;
+
+        // search array in list installed
+        $search_list = array_search($name, $config["list"]);
+        if ($search_list === false)
+        {
+            if ($this->debug || app()->runningInConsole()) throw new ExtensionException(
+                "Extension `{$name}` not installed."
+            );
+            return false;
+        }
+
+        // search if exist or not, and then add and save
+        $search_active = array_search($name, $config["active"]);
+        if (!$search_active)
+        {
+            $config["active"][] = $name;
+            $this->writeExtensionConfigJson($file, $config);
+        }
+
+        // if success
+        return true;
+    }
+
+    /**
+     * Disable a extension
+     *
+     * @param string $name
+     * @return bool true if success
+     */
+    public function disable(string $name)
+    {
+        $file = $this->path . '/extension.json';
+        $config = $this->config;
+
+        // search if enabling or not, and then remove from list
+        $search_active = array_search($name, $config["active"]);
+        if ($search_active)
+        {
+            array_splice($config["active"], $search_active, 1);
+            $this->writeExtensionConfigJson($file, $config);
+        }
+
+        // if success
+        return true;
     }
 }

@@ -37,7 +37,7 @@ class WrapperServiceProvider
         $name = 'extension.' . $this->extension;
         $provider_file = $this->provider_file_path . '.php';
         $provider_class = $this->provider_file;
-        $provider_namespace = "\\Extension\\ThemeManager\\$provider_class";
+        $provider_namespace = "\\Extension\\{$this->extension}\\{$provider_class}";
 
         // check service provider is class
         if (!class_exists($provider_namespace)) {

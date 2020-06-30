@@ -59,7 +59,10 @@ class HookListCommand extends Command
     {
         // action
         $actions = Hook::getAction();
-        $this->question("[List Action Registered]\n");
+        $this->question("[List Action Registered]");
+        if (count($actions) == 0) $this->info("No Action list.");
+
+        $this->info("");
         foreach($actions as $key => $action)
         {
             $this->comment("[*] {$key}");
@@ -75,7 +78,10 @@ class HookListCommand extends Command
     {
         // filter
         $filters = Hook::getFilter();
-        $this->question("[List Filter Registered]\n");
+        $this->question("[List Filter Registered]");
+        if (count($filters) == 0) $this->info("No Filter list.");
+
+        $this->info("");
         foreach($filters as $key => $filter)
         {
             $this->comment("[*] {$key}");

@@ -4,16 +4,21 @@ namespace Viandwi24\LaravelExtension;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Viandwi24\LaravelExtension\Facades\Hook;
+use Viandwi24\LaravelExtension\Facades\Extension;
 use Viandwi24\LaravelExtension\Commands\ExtensionInitCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionListCommand;
+use Viandwi24\LaravelExtension\Commands\ExtensionEnableCommand;
+use Viandwi24\LaravelExtension\Commands\ExtensionDisableCommand;
+use Viandwi24\LaravelExtension\Commands\ExtensionInspectCommand;
+use Viandwi24\LaravelExtension\Commands\ExtensionUpdateListCommand;
 use Viandwi24\LaravelExtension\Commands\HookListCommand;
-use Viandwi24\LaravelExtension\Facades\Extension;
-use Viandwi24\LaravelExtension\Facades\Hook;
 
 class LaravelExtensionServiceProvider extends ServiceProvider
 {
     private $loaded = [];
     private $registered = [];
+    private $booted = [];
 
     /**
      * Register services.
@@ -51,7 +56,12 @@ class LaravelExtensionServiceProvider extends ServiceProvider
     public function boot()
     {
         // boot a extensionsion
-        $booted = Extension::boot($this->registered);
+        $this->booted = Extension::boot($this->registered);
+
+        // save
+        $this->app->bind('extension.loaded', function () { return $this->loaded; });
+        $this->app->bind('extension.registered', function () { return $this->registered; });
+        $this->app->bind('extension.booted', function () { return $this->booted; });
     }
 
 
@@ -106,13 +116,15 @@ class LaravelExtensionServiceProvider extends ServiceProvider
      */
     private function makeCustomConsoleCommand()
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                ExtensionInitCommand::class,
-                ExtensionListCommand::class,
-                HookListCommand::class,
-            ]);
-        }
+        $this->commands([
+            ExtensionInitCommand::class,
+            ExtensionListCommand::class,
+            ExtensionInspectCommand::class,
+            ExtensionEnableCommand::class,
+            ExtensionDisableCommand::class,
+            ExtensionUpdateListCommand::class,
+            HookListCommand::class,
+        ]);
     }
 
     /**
