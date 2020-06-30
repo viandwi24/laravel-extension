@@ -22,9 +22,13 @@
     },
     "extra": {
 	    "laravel": {
-            "dont-discover": [
-                "*"
-            ]
+            "providers": [
+                "Viandwi24\\LaravelExtension\\LaravelExtensionServiceProvider"
+            ],
+            "aliases": {
+                "Extension": "Viandwi24\\LaravelExtension\\Facades\\Extension",
+                "Hook": "Viandwi24\\LaravelExtension\\Facades\\Hook"
+            }
         }
     }
 }
