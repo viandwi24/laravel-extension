@@ -45,8 +45,16 @@ class ExtensionListCommand extends Command
         $this->question("[List Installed Extension]\n");
         foreach($loaded as $ext)
         {
-            $this->comment("[*] " . $ext->config->name);
-            $this->info("    " . $ext->config->description);
+            $author = [
+                "name" => (!$ext->config->author->name) ? "-" : $ext->config->author->name,
+                "site" => (!$ext->config->author->site) ? "-" : $ext->config->author->site
+            ];
+
+            $this->comment("[*] " . $ext->name);
+            $this->info("    [Name] \t: " . $ext->config->name);
+            $this->info("    [Descr] \t: " . $ext->config->description);
+            $this->info("    [Version] \t: " . $ext->config->version);
+            $this->info("    [Author] \t: {$author['name']} [{$author['site']}]");
             $this->info('');
         }
     }

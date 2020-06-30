@@ -4,6 +4,7 @@ namespace Viandwi24\LaravelExtension;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Viandwi24\LaravelExtension\Commands\ExtensionInitCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionListCommand;
 use Viandwi24\LaravelExtension\Commands\HookListCommand;
 use Viandwi24\LaravelExtension\Facades\Extension;
@@ -107,6 +108,7 @@ class LaravelExtensionServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
+                ExtensionInitCommand::class,
                 ExtensionListCommand::class,
                 HookListCommand::class,
             ]);

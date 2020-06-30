@@ -4,9 +4,10 @@ namespace Viandwi24\LaravelExtension;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Viandwi24\LaravelExtension\Exceptions\NotFoundException;
+use Viandwi24\LaravelExtension\Exceptions\NotFoundExtensionException;
 use Viandwi24\LaravelExtension\Exceptions\ExtensionException;
 use Viandwi24\LaravelExtension\Exceptions\NotFoundExtensionConfigException;
+use Viandwi24\LaravelExtension\Exceptions\NotFoundExtensionGlobalConfigException;
 use Viandwi24\LaravelExtension\Extension\WrapperServiceProvider;
 
 class Extension
@@ -40,7 +41,7 @@ class Extension
      *
      * @return \Illuminate\Support\Collection
      */
-    public function listFromJson()
+    public function listFromJson(): Collection
     {
         return New Collection($this->list);
     }
@@ -50,8 +51,9 @@ class Extension
      *
      * @return array
      */
-    public function load()
+    public function load(): array
     {
+        if (count($this->config) == 0) return [];
         $installed = $this->getListInstalledExtension();
         $active = $this->getListActiveExtension($installed);
 
@@ -219,7 +221,8 @@ class Extension
         // check file is a file
         if (!File::isFile($file))
         {
-            throw new NotFoundException(
+            if (app()->runningInConsole()) return [];
+            throw new NotFoundExtensionGlobalConfigException(
                 'Extension Config Json Not Found `' . $file . '`'
             );
         }
@@ -267,7 +270,7 @@ class Extension
             // check folder
             if (!File::isDirectory($path))
             {
-                if ($this->debug) throw new NotFoundException(
+                if ($this->debug) throw new NotFoundExtensionException(
                     'Extension `' . $item . '` Doesnt have working folder (' . $path . ')'
                 );
                 $continue = false;
@@ -322,13 +325,23 @@ class Extension
         // check extension config
         if (!File::isFile($config_path))
         {
-            if ($this->debug) throw new NotFoundException(
+            if ($this->debug) throw new NotFoundExtensionException(
                 'Extension `' . $extension . '` Doesnt have config file (' . $config_path . ')'
             );
         }
 
         // load
-        $config = (object) json_decode(file_get_contents($config_path), true);
+        $config = (object) json_decode(file_get_contents($config_path));
+        
+        // validate
+        $config_must_exist = ['name', 'description', 'provider', 'version', 'author'];
+        foreach($config_must_exist as $item)
+        {
+            if (!isset($config->$item)) throw new NotFoundExtensionException(
+                "Extension `{$extension}` doesnt have `{$item}` in config. ({$config_path})"
+            );
+        }
+        
 
         // return
         return $config;
