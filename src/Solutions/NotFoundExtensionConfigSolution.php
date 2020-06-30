@@ -33,7 +33,7 @@ class NotFoundExtensionConfigSolution implements RunnableSolution
 
     public function run(array $parameters = [])
     {
-        echo "<script>alert(123);</script>";
+        return "";
     }
 
     public function getRunParameters(): array
