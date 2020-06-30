@@ -5,12 +5,14 @@ namespace Viandwi24\LaravelExtension;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Viandwi24\LaravelExtension\Commands\ExtensionListCommand;
+use Viandwi24\LaravelExtension\Commands\HookListCommand;
 use Viandwi24\LaravelExtension\Facades\Extension;
 use Viandwi24\LaravelExtension\Facades\Hook;
 
 class LaravelExtensionServiceProvider extends ServiceProvider
 {
     private $loaded = [];
+    private $registered = [];
 
     /**
      * Register services.
@@ -37,6 +39,7 @@ class LaravelExtensionServiceProvider extends ServiceProvider
 
         // load and register a extension
         $this->loaded = Extension::load();
+        $this->registered = Extension::register($this->loaded);
     }
 
     /**
@@ -47,7 +50,7 @@ class LaravelExtensionServiceProvider extends ServiceProvider
     public function boot()
     {
         // boot a extensionsion
-        $booted = Extension::boot($this->loaded);
+        $booted = Extension::boot($this->registered);
     }
 
 
@@ -104,7 +107,8 @@ class LaravelExtensionServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                ExtensionListCommand::class
+                ExtensionListCommand::class,
+                HookListCommand::class,
             ]);
         }
     }

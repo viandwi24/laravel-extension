@@ -61,18 +61,43 @@ class Extension
             // make tmp for loaded
             $tmp = (object) [ 'name' => $item, 'errors' => [] ];
 
-            // set registered state
-            $tmp->registered = true;
-
             // get config file
             $config = $this->getConfigExtension($item);
             $tmp->config = $config;
+            $loaded[] = $tmp;
+        }
+        $this->loaded = $loaded;
+
+        // return
+        return $loaded;
+    }
+
+    /**
+     * Register a extension
+     *
+     * @param array $loaded
+     * @return array
+     */
+    public function register(array $loaded = [])
+    {
+        $registered = [];
+        foreach($loaded as $item)
+        {
+            // make tmp for loaded
+            $tmp = (object) $item;
+
+            // set registered state
+            $tmp->registered = true;
 
             // construct service provider
             if (!$this->debug) {
                 try {
                     // make wrapper for provider
-                    $provider = new WrapperServiceProvider($this->path, $item, $config->provider);
+                    $provider = new WrapperServiceProvider(
+                        $this->path,
+                        $item,
+                        $tmp->config->provider
+                    );
                     $tmp->provider = $provider;
                 } catch (\Throwable $th) {
                     $tmp->registered = false;
@@ -83,7 +108,11 @@ class Extension
                 }
             } else {
                 // make wrapper for provider
-                $provider = new WrapperServiceProvider($this->path, $item, $config->provider);
+                $provider = new WrapperServiceProvider(
+                    $this->path,
+                    $tmp->name,
+                    $tmp->config->provider
+                );
                 $tmp->provider = $provider;
             }
 
@@ -103,12 +132,11 @@ class Extension
                 // run register provider
                 $provider->register();
             }
-            $loaded[] = $tmp;
+            $registered[] = $tmp;
         }
-        $this->loaded = $loaded;
-
+        
         // return
-        return $loaded;
+        return $registered;
     }
 
     /**
@@ -123,35 +151,38 @@ class Extension
         foreach($loaded as $item)
         {
             // booting to extension if extension registered
-           if ($item->registered)
-           {
-                //    
-                $item->booted = true;
+            if (!isset($item->registered)) throw new ExtensionException(
+                "Extension `{$item->name}` Not Have Registered Status"
+            );
+            if ($item->registered)
+            {
+                    //    
+                    $item->booted = true;
 
-                // booting extension
-                $provider = $item->provider;
-                if (!$this->debug) {
-                    try {
+                    // booting extension
+                    $provider = $item->provider;
+                    if (!$this->debug) {
+                        try {
+                            // run boot provider
+                            $provider->boot();
+                        } catch (\Throwable $th) {
+                            $item->booted = false;
+                            $item->errors[] = [
+                                'title' => 'Error On boot Service Provider',
+                                'throwable' => $th
+                            ];
+                        }
+                    } else {
                         // run boot provider
                         $provider->boot();
-                    } catch (\Throwable $th) {
-                        $item->booted = false;
-                        $item->errors[] = [
-                            'title' => 'Error On boot Service Provider',
-                            'throwable' => $th
-                        ];
-                    }
+                    }         
+
                 } else {
-                    // run boot provider
-                    $provider->boot();
-                }         
+                    $item->booted = false;
+                }
 
-            } else {
-                $item->booted = false;
-            }
-
-            // list extension
-            $booted[] = $item;
+                // list extension
+                $booted[] = $item;
         }
 
         return $booted;

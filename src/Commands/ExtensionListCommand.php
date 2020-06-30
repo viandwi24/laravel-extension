@@ -3,7 +3,7 @@
 namespace Viandwi24\LaravelExtension\Commands;
 
 use Illuminate\Console\Command;
-use Viandwi24\LaravelExtension\Extension;
+use Viandwi24\LaravelExtension\Facades\Extension;
 
 class ExtensionListCommand extends Command
 {
@@ -41,16 +41,12 @@ class ExtensionListCommand extends Command
      */
     public function handle()
     {
-        $exts = new Extension($this->config['path'], $this->config['debug']);
-        $loaded = $exts->load();
+        $loaded = Extension::load();
         $this->question("[List Installed Extension]\n");
         foreach($loaded as $ext)
         {
             $this->comment("[*] " . $ext->config->name);
             $this->info("    " . $ext->config->description);
-            $this->info(
-                "    [Registered : " . ($ext->registered ? "Yes" : "Failed") . "]"
-            );
             $this->info('');
         }
     }
