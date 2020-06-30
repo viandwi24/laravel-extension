@@ -11,6 +11,7 @@ use Viandwi24\LaravelExtension\Commands\ExtensionListCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionEnableCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionDisableCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionInspectCommand;
+use Viandwi24\LaravelExtension\Commands\ExtensionNewCommand;
 use Viandwi24\LaravelExtension\Commands\ExtensionUpdateListCommand;
 use Viandwi24\LaravelExtension\Commands\HookListCommand;
 
@@ -123,6 +124,7 @@ class LaravelExtensionServiceProvider extends ServiceProvider
             ExtensionEnableCommand::class,
             ExtensionDisableCommand::class,
             ExtensionUpdateListCommand::class,
+            ExtensionNewCommand::class,
             HookListCommand::class,
         ]);
     }

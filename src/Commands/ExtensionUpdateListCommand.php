@@ -48,7 +48,7 @@ class ExtensionUpdateListCommand extends Command
         }
 
         // info
-        $count = count($update);
+        $count = count($update["list"]);
         $this->info("[*] updating finish, `{$count}` extension listed");
     }
 }

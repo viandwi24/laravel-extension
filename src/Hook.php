@@ -80,9 +80,10 @@ class Hook
      * Run a action
      *
      * @param string $name action hook name
+     * @param mixed $params parameter
      * @return void
      */
-    public function runAction(string $name)
+    public function runAction(string $name, ...$params)
     {
         // param
         $args = func_get_args();
