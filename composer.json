@@ -1,6 +1,6 @@
 {
     "name": "viandwi24/laravel-extension",
-    "description": "Plugin, Exntension and Module System For Laravel",
+    "description": "Plugin, Extension and Module System For Laravel",
     "keywords": ["laravel", "module", "plugin", "extension"],
     "type": "library",
     "license": "MIT",
