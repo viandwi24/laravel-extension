@@ -1,10 +1,9 @@
 # Laravel Extension
 Plugin, Extension and Module System For Laravel. Inspirate from Wordpress Plugins.
 
+![screenshot preview](https://raw.githubusercontent.com/viandwi24/laravel-extension/master/resources/screenshot.png)
 
-Table of contents
-=================
-
+# Table of contents
 <!--ts-->
    * [Installing](#installing)
    * [Extension Folder Structure](#extension-folder-structure)
