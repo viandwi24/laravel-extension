@@ -15,10 +15,10 @@ class Hook
      *
      * @param string $extension extension name
      * @param string $name action name / action key
-     * @param \Closure $callback action event
+     * @param \Closure|Array $callback action event
      * @return void
      */
-    public function addAction(string $extension, string $name, \Closure $callback, int $priority = 10)
+    public function addAction(string $extension, string $name, $callback, int $priority = 10)
     {
         // valdiate actions
         if (!isset($this->actions[$name])) $this->actions[$name] = [];
@@ -48,10 +48,10 @@ class Hook
      *
      * @param string $extension extension name
      * @param string $name filter name / filter key
-     * @param \Closure $callback filter event
+     * @param \Closure|Array $callback filter event
      * @return void
      */
-    public function addFilter(string $extension, string $name, \Closure $callback, int $priority = 10)
+    public function addFilter(string $extension, string $name, $callback, int $priority = 10)
     {
         // valdiate filters
         if (!isset($this->filters[$name])) $this->filters[$name] = [];
@@ -80,7 +80,7 @@ class Hook
      * Run a action
      *
      * @param string $name action hook name
-     * @param mixed $params parameter
+     * @param mixed ...$params parameter
      * @return void
      */
     public function runAction(string $name, ...$params)
