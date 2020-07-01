@@ -6,6 +6,7 @@ Plugin, Extension and Module System For Laravel. Inspirate from Wordpress Plugin
 # Table of contents
 <!--ts-->
    * [Installing](#installing)
+   * [Extension Management Page](#extension-management-page)
    * [Extension Folder Structure](#extension-folder-structure)
    * [Create New Extension](#create-new-extension)
       * [with Artisan Command](#with-artisan-command)
@@ -56,6 +57,15 @@ For first time after installing, you must run this command for generate extensio
 php artisan extension:init
 ```
 
+## Extension Management Page
+For a simple Extension management page, added this route to your rourtes `routes/web.php` :
+```
+use Viandwi24\LaravelExtension\Facades\Extension;
+
+Extension::routes();
+```
+Save, and then access in your browser `http://mylaravelproject.test/extension` or 'localhost:8000/extension`, and finaly, you see this page :
+![screenshot extension management page](https://raw.githubusercontent.com/viandwi24/laravel-extension/master/resources/screenshot1.png)
 
 ## Extension Folder Structure
 By Default, Extension path in `app/Extension`, you can create Extension in this folder.
