@@ -8,7 +8,14 @@ class Menu
 {
     protected array $menu = [];
 
-    public function add($name)
+    /**
+     * Add item mene
+     *
+     * @param string $name
+     * @param mixed ...$params
+     * @return void
+     */
+    public function add(string $name, ...$params)
     {
         $args = func_get_args(); array_splice($args, 0, 1);
         $this->menu[$name][] = $args;
