@@ -16,6 +16,7 @@ class Extension
     private bool $debug = false;
     private array $config = [];
     private array $loaded = [];
+    private array $registered = [];
     private array $booted = [];
 
     /**
@@ -159,6 +160,7 @@ class Extension
             
             $registered[] = $tmp;
         }
+        $this->registered = $registered;
         
         // return
         return $registered;
@@ -209,6 +211,7 @@ class Extension
                 // list extension
                 $booted[] = $item;
         }
+        $this->booted = $booted;
 
         return $booted;
     }
@@ -221,6 +224,16 @@ class Extension
     public function getLoaded()
     {
         return $this->loaded;
+    }
+
+    /**
+     * Get List of Registered Extension
+     *
+     * @return array
+     */
+    public function getRegistered()
+    {
+        return $this->registered;
     }
 
     /**
@@ -452,7 +465,7 @@ class Extension
 
         // search if enabling or not, and then remove from list
         $search_active = array_search($name, $config["active"]);
-        if ($search_active)
+        if ($search_active !== false)
         {
             array_splice($config["active"], $search_active, 1);
             $this->writeExtensionConfigJson($file, $config);
@@ -460,5 +473,21 @@ class Extension
 
         // if success
         return true;
+    }
+
+
+    public function routes()
+    {
+        $router = app('router');
+        return $router->group([
+            'namespace' => '\Viandwi24\LaravelExtension\Controllers',
+            'prefix' => 'extension',
+            'as' => 'extension.'
+        ], function () use ($router) {
+            $router->get('/', 'ExtensionController@index')->name('index');
+            $router->get('/{name}/inspect', 'ExtensionController@inspect')->name('inspect');
+            $router->get('/{name}/enable', 'ExtensionController@enable')->name('enable');
+            $router->get('/{name}/disable', 'ExtensionController@disable')->name('disable');
+        });
     }
 }
