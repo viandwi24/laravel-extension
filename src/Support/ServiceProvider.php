@@ -13,6 +13,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     public function __construct()
     {
+        parent::__construct(app());
         $this->extension = explode('\\', str_replace('Extension\\', '', get_called_class()))[0];
     }
 
@@ -20,11 +21,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      * Add action
      *
      * @param string $name action name / action key
-     * @param \Closure $callback action event
+     * @param \Closure|Array $callback action event
      * @param int $priority action priority on call
      * @return void
      */
-    public function addAction(string $name, \Closure $callback, int $priority = 10)
+    public function addAction(string $name, $callback, int $priority = 10)
     {
         return Hook::addAction($this->extension, $name, $callback, $priority);
     }
@@ -45,11 +46,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      * Add filter
      *
      * @param string $name filter name / filter key
-     * @param \Closure $callback filter event
+     * @param \Closure|Array $callback filter event
      * @param int $priority filter priority on call
      * @return void
      */
-    public function addFilter(string $name, \Closure $callback, int $priority = 10)
+    public function addFilter(string $name, $callback, int $priority = 10)
     {
         return Hook::addFilter($this->extension, $name, $callback, $priority = 10);
     }
