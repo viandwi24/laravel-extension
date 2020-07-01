@@ -16,7 +16,7 @@ final class HookActionTest extends TestCase
         }, 15);
         $hook->addAction('extension_2', 'getting_hello', function () use (&$title) {
             $title = "Hy, {$title}!";
-        }, 15);
+        }, 10);
 
         // 
         $hook->runAction('getting_hello');
