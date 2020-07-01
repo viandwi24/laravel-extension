@@ -44,6 +44,9 @@ class LaravelExtensionServiceProvider extends ServiceProvider
         // register blade directive
         $this->makeCustomBladeDirective();
 
+        // 
+        $this->loadViewsFrom( __DIR__ . "/Views", "LaravelExtension");
+
         // load and register a extension
         $this->loaded = Extension::load();
         $this->registered = Extension::register($this->loaded);
