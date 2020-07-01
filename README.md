@@ -13,6 +13,11 @@ Plugin, Extension and Module System For Laravel. Inspirate from Wordpress Plugin
    * [Hook](#hook)
       * [Action](#action)
       * [Filter](#filter)
+   * [Menu Builder](#menu-builder)
+   * [Unit Test](#unit-test)
+   * [Examples](#examples)
+      * [Making Dynamic css and javascript in html blade](#Making-Dynamic-css-and-javascript-in-html-blade)
+   * [License](#license)
 <!--te-->
 
 ## Installing
@@ -130,7 +135,8 @@ for enable your extension, use :
 php artisan extension:enable ExampleTes
 ```
 ### Manual
-| note : this use indonesian language, you can translate this.
+| note : this use indonesian language, you can translate this.  
+
 Lokasi extension harus ada pada folder utama extension, secara default 
 ada pada `app\Extension`. berikut panduan singkat cara pembuatan extension :
 * membuat folder utama extension, misal `app\Extension\MyPlugin`
@@ -262,3 +268,122 @@ $title = "Example Post";
 $result = Hook::applyFilter('save_post_params', $title);
 // result output : a example post.
 ```
+
+
+## Menu Builder
+This package include a simple menu builder, for make dynamic menu in your project,  
+this is a example :
+```
+use Viandwi24\LaravelExtension\Facades\Menu;
+
+Menu::add('admin.navbar', 'Dashboard', url('/'));
+Menu::add('admin.navbar', 'Extension', url('/extension'));
+```
+And then, for render to string html, use this. For example i am make `sidebar.blade.php` :
+```
+@php
+$menu = Menu::render('admin.navbar', function ($title, $url) {
+    return '<li class="nav-item">
+        <a class="nav-link" href="'.$url.'">
+            <i class="nav-icon la la-lg la-dashboard"></i>
+            '.$title.'
+        </a>
+    </li>';
+});
+@endphp
+
+<div class="sidebar">
+    <nav class="sidebar-nav">
+        <ul class="nav">
+            {!! $menu !!}
+        </ul>
+    </nav>
+</div>
+```
+
+
+
+## Unit Test
+You can running test with phpunit with this command :
+```
+composer test
+```
+or : (installed phpunit via composer)
+```
+vendor/bin/phpunit tests/HookActionTest
+vendor/bin/phpunit tests/HookFilterTest
+vendor/bin/phpunit tests/MenuBuilderTest
+```
+
+## Examples
+### Making Dynamic css and javascript in html blade
+For example, a make a page with dynamic component with Hook filter.
+In `layouts/app.blade.php` :
+```
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Example Page</title>
+        
+        @applyfilter("html__styless")
+            <!-- dynamic styles with Hook Filter -->
+        @applyfilter
+    </head>
+    <body class="app aside-menu-fixed sidebar-lg-show">
+        <div id="app"></div>
+
+        @applyfilter("html__scripts")
+            <!-- dynamic scripts with Hook Filter -->
+        @applyfilter
+    </body>
+</html>
+```
+And in controlle :
+```
+public function index()
+{
+    //  system filter
+    Hook::addFilter("system", "html__styles", function ($old_value) {
+        return $old_value . '<link href="bootstrap.min.css" rel="stylesheet">';
+    }, 15);
+    Hook::addFilter("system", "html__scripts", function ($old_value) {
+        return $old_value .'<script src="bootstrap.min.js"><script>';
+    }, 15);
+
+    // another extension filter
+    Hook::addFilter("example_extension", "html__scripts", function ($old_value) {
+        return '<script src="jquery.min.js"><script>' . $old_value;
+    }, 15);
+    return view('layouts.app');
+}
+```
+And then, final result html is :
+```
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Example Page</title>
+        
+        <!-- dynamic styles with Hook Filter -->
+        <link href="bootstrap.min.css" rel="stylesheet">
+    </head>
+    <body class="app aside-menu-fixed sidebar-lg-show">
+        <div id="app"></div>
+
+        <!-- dynamic scripts with Hook Filter -->
+        <script src="jquery.min.js"><script>
+        <script src="bootstrap.min.js"><script>
+    </body>
+</html>
+```
+
+
+
+## License
+The MIT License (MIT). Please see
+<a href="https://github.com/viandwi24/laravel-extension/blob/master/LICENSE.md">License File</a>
+for more information.
