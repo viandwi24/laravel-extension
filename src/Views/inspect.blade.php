@@ -28,6 +28,12 @@
             </small>
         </p>
 
+        <h3># Working Folder</h3>
+        <input  type="text" readonly class="form-control mb-4" value="{{ $extension->path }}">
+
+        <h3># Provider</h3>
+        <input type="text" readonly class="form-control mb-4" value="{{ "{$extension->path}/{$extension->config->provider}.php"  }}">
+
         <h3># Lifecycle</h3>
         <p class="mb-0">
             <b>Loaded : </b> <span class="badge {{ ($extension->loaded) ? "bg-success" : "bg-danger" }}">
@@ -39,20 +45,29 @@
                 {{ ($extension->registered) ? "True" : "False" }}
             </span>
         </p>
-        <p class="mb-0">
+        <p class="mb-4">
             <b>Booted : </b> <span class="badge {{ ($extension->booted) ? "bg-success" : "bg-danger" }}">
                 {{ ($extension->booted) ? "True" : "False" }}
             </span>
         </p>
     </div>
     <div class="card-body" style="border-top: 1px solid rgb(185, 185, 185);">
-        <h3>Error Trace</h3>
+        <h3># Config</h3>
+        {{ (\Symfony\Component\VarDumper\VarDumper::dump($extension->config)) }}
+    </div>
+    <div class="card-body" style="border-top: 1px solid rgb(185, 185, 185);">
+        <h3># Error Trace ({{ count($extension->errors) }})</h3>
         {{ (\Symfony\Component\VarDumper\VarDumper::dump($extension->errors)) }}
     </div>
     <div class="card-body" style="border-top: 1px solid rgb(185, 185, 185);">
-        <h3>Hook Action</h3>
+        @if (!$extension->active)
+        <div class="alert alert-danger">
+            Cannt Inspect Hook Action and Filter, because this extension disable.
+        </div>            
+        @endif
+        <h3># Hook Action</h3>
         {{ (\Symfony\Component\VarDumper\VarDumper::dump($actions)) }}
-        <h3>Hook Filter</h3>
+        <h3># Hook Filter</h3>
         {{ (\Symfony\Component\VarDumper\VarDumper::dump($filters)) }}
     </div>
     <div class="card-body" style="border-top: 1px solid rgb(185, 185, 185);">

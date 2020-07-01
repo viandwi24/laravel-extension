@@ -12,6 +12,8 @@
         <div class="container pt-4">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-sm-12">
+                    <h3>{{ env('APP_NAME', "Laravel") }} Extension Management</h3>
+                    <hr>
                     @yield('content')
                 </div>
             </div>
