@@ -68,7 +68,8 @@ class Extension
                 'loaded' => false,
                 'registered' => false,
                 'booted' => false,
-                'active' => false
+                'active' => false,
+                'path' => "{$this->path}/{$item}",
             ];
 
             // check extension has active list ?
