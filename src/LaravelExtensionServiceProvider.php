@@ -98,6 +98,9 @@ class LaravelExtensionServiceProvider extends ServiceProvider
         $this->app->bind('hook', function () {
             return new \Viandwi24\LaravelExtension\Hook;
         });
+        $this->app->bind('menu', function () {
+            return new \Viandwi24\LaravelExtension\Menu;
+        });
     }
 
     /**
